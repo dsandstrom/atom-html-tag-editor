@@ -29,8 +29,12 @@ module.exports = HtmlTagEditor =
         scope = scopes[1]
 
         return unless scope.match(/meta\.tag/)
-        console.log "I'm a tag"
 
+        tagRange = cursor.getCurrentWordBufferRange()
+        tagText = editor.getTextInBufferRange(tagRange)
+        tagText = tagText.replace(/(<\/?|>)/, '')
+        return unless tagText
+        console.log tagText
 
       editor.onDidDestroy ->
         editorSubscriptions.dispose()
