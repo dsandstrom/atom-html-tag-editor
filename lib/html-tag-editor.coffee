@@ -12,11 +12,7 @@ module.exports = HtmlTagEditor =
       editorScope = editorScopeDescriptor.getScopesArray()
       return unless editorScope and editorScope.length
 
-      if editorScope[0].match(/text\.html/)
-        console.log 'editor is html'
-      else
-        console.log 'editor is not html'
-        return
+      return unless editorScope[0].match(/text\.html/)
 
       editorSubscriptions.add editor.onDidChangeCursorPosition (event) ->
         cursor = event.cursor
@@ -30,10 +26,20 @@ module.exports = HtmlTagEditor =
 
         return unless scope.match(/meta\.tag/)
 
-        tagRange = cursor.getCurrentWordBufferRange()
+        startTagRegex = /[<\s]/
+        endTagRegex = /[>\s]/
+        startOfTag =
+          cursor.getBeginningOfCurrentWordBufferPosition(
+            {wordRegex: startTagRegex}
+          )
+        endOfTag =
+          cursor.getEndOfCurrentWordBufferPosition({wordRegex: endTagRegex})
+        tagRange = [startOfTag, endOfTag]
+        console.log tagRange
         tagText = editor.getTextInBufferRange(tagRange)
-        tagText = tagText.replace(/(<\/?|>)/, '')
         return unless tagText
+
+        tagText = tagText.trim()
         console.log tagText
 
       editor.onDidDestroy ->
