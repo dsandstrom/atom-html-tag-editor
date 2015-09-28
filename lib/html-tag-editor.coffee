@@ -30,11 +30,25 @@ module.exports = HtmlTagEditor =
 
         return unless scope.match(/meta\.tag/)
 
-        tagRange = cursor.getCurrentWordBufferRange()
-        tagText = editor.getTextInBufferRange(tagRange)
-        tagText = tagText.replace(/(<\/?|>)/, '')
+        openTagRegex  = /\w+/
+        closeTagRegex = /<\/[\w\s]+>/
+
+        # opening tag
+        tagRange =
+          cursor.getCurrentWordBufferRange({wordRegex: openTagRegex})
+        tagText  = editor.getTextInBufferRange(tagRange)
+        tagText = /\w+/.exec(tagText)
         return unless tagText
+        tagText = tagText[0]
         console.log tagText
+        closingTag = "</#{tagText}"
+        closingRegExp = new RegExp(closingTag, 'g')
+        closingTagRange = [tagRange.end, [editor.getLastBufferRow(), 0]]
+        # console.log closingTagRange
+        # closingTagText = editor.getTextInBufferRange(closingTagRange)
+        # console.log closingTagText
+        editor.scanInBufferRange closingRegExp, closingTagRange, (obj) ->
+          console.log obj
 
       editor.onDidDestroy ->
         editorSubscriptions.dispose()
